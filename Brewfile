@@ -2,10 +2,10 @@
 # Brewfile - Homebrew packages
 # ============================================
 # Usage: brew bundle --file=~/dotfiles/Brewfile
+# macOS / Linux 共通。macOS 専用のものは `if OS.mac?` 内に記述
 
 # Taps
 tap "kayac/tap"
-tap "xcodesorg/made"
 
 # --------------------------------------------
 # CLI Enhancements
@@ -14,7 +14,7 @@ brew "bat"                   # cat with syntax highlighting
 brew "eza"                   # Modern ls replacement
 brew "ripgrep"               # Fast grep (rg)
 brew "fd"                    # Fast find
-brew "delta"                 # Better git diff
+brew "git-delta"             # Better git diff
 brew "zoxide"                # Smarter cd
 brew "tldr"                  # Simplified man pages
 brew "tree"                  # Directory tree view
@@ -57,13 +57,20 @@ brew "semgrep"               # Static analysis
 # --------------------------------------------
 brew "watchman"              # File watching service
 brew "zbar"                  # Barcode reader
-brew "xcodesorg/made/xcodes" # Xcode version manager
 
 # --------------------------------------------
 # Cask Applications
 # --------------------------------------------
-cask "docker"                # Docker Desktop
-cask "xcodes-app"
+
+# --------------------------------------------
+# macOS only
+# --------------------------------------------
+if OS.mac?
+  tap "xcodesorg/made"
+  brew "xcodesorg/made/xcodes" # Xcode version manager
+  cask "docker"                # Docker Desktop
+  cask "xcodes-app"
+end
 
 # --------------------------------------------
 # VSCode Extensions (必須のみ)

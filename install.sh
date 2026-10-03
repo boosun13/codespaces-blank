@@ -6,7 +6,7 @@
 
 set -e
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 BACKUP_DIR="$HOME/dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 FORCE=false
 UNINSTALL=false
@@ -62,6 +62,22 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# OS 判定
+case "$(uname -s)" in
+    Darwin) OS="macos" ;;
+    Linux)  OS="linux" ;;
+    *)      OS="other" ;;
+esac
+
+# VSCode のユーザー設定ディレクトリ
+vscode_user_dir() {
+    if [[ "$OS" == "macos" ]]; then
+        echo "$HOME/Library/Application Support/Code/User"
+    else
+        echo "${XDG_CONFIG_HOME:-$HOME/.config}/Code/User"
+    fi
+}
 
 # 確認プロンプト
 confirm() {
@@ -170,8 +186,9 @@ uninstall() {
     unlink_file "$HOME/.p10k.zsh"
     unlink_file "$HOME/.config/sheldon"
     unlink_file "$HOME/.config/nvim"
-    unlink_file "$HOME/Library/Application Support/Code/User/settings.json"
-    unlink_file "$HOME/Library/Application Support/Code/User/keybindings.json"
+    unlink_file "$HOME/.gitconfig.delta"
+    unlink_file "$(vscode_user_dir)/settings.json"
+    unlink_file "$(vscode_user_dir)/keybindings.json"
 
     echo ""
     info "Uninstallation completed!"
@@ -227,7 +244,7 @@ main() {
     fi
 
     # VSCode
-    local VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
+    local VSCODE_USER_DIR="$(vscode_user_dir)"
     if [[ -d "$DOTFILES_DIR/config/vscode" ]]; then
         mkdir -p "$VSCODE_USER_DIR"
         if [[ -f "$DOTFILES_DIR/config/vscode/settings.json" ]]; then
@@ -240,30 +257,54 @@ main() {
 
     echo ""
 
-    # Homebrew がある場合、必要なツールをインストール
-    if command -v brew &> /dev/null; then
-        # sheldon
-        if ! command -v sheldon &> /dev/null; then
-            info "Installing sheldon..."
-            brew install sheldon
-        fi
+    # ツールのインストール（Homebrew があれば brew、なければ公式インストーラ）
+    mkdir -p "$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH"
 
-        # fzf
-        if ! command -v fzf &> /dev/null; then
-            info "Installing fzf..."
-            brew install fzf
-        fi
+    # PATH に無くても既知の場所に Homebrew があれば使う
+    if ! command -v brew &> /dev/null; then
+        for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+            if [[ -x "$brew_bin" ]]; then
+                eval "$("$brew_bin" shellenv)"
+                break
+            fi
+        done
+    fi
 
-        # mise (version manager)
-        if ! command -v mise &> /dev/null; then
-            info "Installing mise..."
-            brew install mise
+    # 必須コマンドの確認
+    for cmd in git curl zsh; do
+        if ! command -v "$cmd" &> /dev/null; then
+            warn "$cmd が見つかりません。パッケージマネージャーでインストールしてください (例: sudo apt install $cmd)"
         fi
+    done
+
+    install_tool() {
+        local name=$1
+        local installer=$2
+        if command -v "$name" &> /dev/null; then
+            return 0
+        fi
+        info "Installing $name..."
+        if command -v brew &> /dev/null; then
+            brew install "$name"
+        elif ! eval "$installer"; then
+            warn "$name のインストールに失敗しました。手動でインストールしてください"
+        fi
+    }
+
+    install_tool sheldon 'curl --proto "=https" -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to "$HOME/.local/bin"'
+    install_tool mise 'curl -fsSL https://mise.run | sh'
+    install_tool fzf 'git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf" && "$HOME/.fzf/install" --bin && ln -sf "$HOME/.fzf/bin/fzf" "$HOME/.local/bin/fzf"'
+
+    # delta (git pager): 入っている場合のみ git 設定を有効化
+    if ! command -v delta &> /dev/null && command -v brew &> /dev/null; then
+        info "Installing delta..."
+        brew install git-delta || warn "delta のインストールに失敗しました"
+    fi
+    if command -v delta &> /dev/null; then
+        link_file "$DOTFILES_DIR/config/git/delta.gitconfig" "$HOME/.gitconfig.delta"
     else
-        warn "Homebrew がインストールされていません"
-        warn "手動でインストールしてください:"
-        warn "  - sheldon: https://sheldon.cli.rs"
-        warn "  - mise: https://mise.jdx.dev"
+        warn "delta が無いため git の pager 設定はスキップします"
     fi
 
     # sheldon プラグインのダウンロード

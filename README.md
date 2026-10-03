@@ -11,6 +11,17 @@ My personal dotfiles managed with Git.
 - `Brewfile` - Homebrew package manifest
 - `config/sheldon/plugins.toml` - Zsh plugin manager configuration
 
+## Supported OS
+
+macOS / Linux (Debian・Ubuntu・Codespaces など) / WSL に対応しています。Windows ネイティブは非対応です（WSL を使用してください）。
+
+- 事前に `git` `curl` `zsh` が必要です
+- リポジトリはどこに clone しても動作します（`~/dotfiles` 固定ではありません）
+- Homebrew があれば brew、無ければ公式インストーラで `sheldon` `mise` `fzf` を `~/.local/bin` に入れます
+- `delta` は Homebrew がある場合のみ導入し、入っている環境だけ git の pager 設定 (`config/git/delta.gitconfig`) を有効化します
+- VSCode 設定のリンク先は OS ごとに切り替わります（macOS: `~/Library/Application Support/Code/User`、Linux: `~/.config/Code/User`）
+- `macos.sh` は macOS 専用です
+
 ## Installation
 
 ```bash

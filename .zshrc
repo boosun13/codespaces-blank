@@ -10,6 +10,18 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # --------------------------------------------
+# Homebrew (macOS / Linux)
+# --------------------------------------------
+if ! command -v brew &> /dev/null; then
+    for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+        if [[ -x "$brew_bin" ]]; then
+            eval "$("$brew_bin" shellenv)"
+            break
+        fi
+    done
+fi
+
+# --------------------------------------------
 # Plugin Manager (sheldon)
 # --------------------------------------------
 if command -v sheldon &> /dev/null; then
@@ -71,6 +83,9 @@ if command -v eza &> /dev/null; then
     alias l='eza -F'
     alias tree='eza --tree'
 else
+    if ls --color=auto / &> /dev/null; then
+        alias ls='ls --color=auto'  # GNU ls (Linux)
+    fi
     alias ll='ls -la'
     alias la='ls -A'
     alias l='ls -CF'
@@ -118,7 +133,12 @@ alias bundle='mise exec -- bundle'
 # --------------------------------------------
 export EDITOR='vim'
 export VISUAL='vim'
-export LANG='ja_JP.UTF-8'
+# ロケールが存在する場合のみ ja_JP を使う (無い Linux 環境での警告を防ぐ)
+if locale -a 2>/dev/null | grep -qiE '^ja_JP\.utf-?8$'; then
+    export LANG='ja_JP.UTF-8'
+elif locale -a 2>/dev/null | grep -qiE '^(c|en_US)\.utf-?8$'; then
+    export LANG="$(locale -a | grep -iE '^(c|en_US)\.utf-?8$' | head -1)"
+fi
 
 # PATH
 export PATH="$HOME/.local/bin:$PATH"
@@ -172,4 +192,6 @@ fi
 if [[ -f ~/.zshrc.local ]]; then
     source ~/.zshrc.local
 fi
-eval "$(mise activate zsh)"
+if command -v mise &> /dev/null; then
+    eval "$(mise activate zsh)"
+fi
