@@ -187,6 +187,10 @@ uninstall() {
     unlink_file "$HOME/.config/sheldon"
     unlink_file "$HOME/.config/nvim"
     unlink_file "$HOME/.gitconfig.delta"
+    unlink_file "$HOME/.claude/settings.json"
+    unlink_file "$HOME/.claude/CLAUDE.md"
+    unlink_file "$HOME/.codex/config.toml"
+    unlink_file "$HOME/.codex/AGENTS.md"
     unlink_file "$(vscode_user_dir)/settings.json"
     unlink_file "$(vscode_user_dir)/keybindings.json"
 
@@ -255,6 +259,20 @@ main() {
         fi
     fi
 
+    # Claude Code (認証情報やセッションは管理せず、設定ファイルのみリンク)
+    if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
+        mkdir -p "$HOME/.claude"
+        link_file "$DOTFILES_DIR/config/claude/settings.json" "$HOME/.claude/settings.json"
+        link_file "$DOTFILES_DIR/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+    fi
+
+    # Codex CLI
+    if [[ -d "$DOTFILES_DIR/config/codex" ]]; then
+        mkdir -p "$HOME/.codex"
+        link_file "$DOTFILES_DIR/config/codex/config.toml" "$HOME/.codex/config.toml"
+        link_file "$DOTFILES_DIR/config/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
+    fi
+
     echo ""
 
     # ツールのインストール（Homebrew があれば brew、なければ公式インストーラ）
@@ -295,6 +313,27 @@ main() {
     install_tool sheldon 'curl --proto "=https" -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to "$HOME/.local/bin"'
     install_tool mise 'curl -fsSL https://mise.run | sh'
     install_tool fzf 'git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf" && "$HOME/.fzf/install" --bin && ln -sf "$HOME/.fzf/bin/fzf" "$HOME/.local/bin/fzf"'
+
+    # Claude Code / Codex CLI (npm を優先、無ければ代替手段)
+    if ! command -v claude &> /dev/null; then
+        info "Installing claude..."
+        if command -v npm &> /dev/null; then
+            npm install -g @anthropic-ai/claude-code || warn "claude のインストールに失敗しました"
+        else
+            curl -fsSL https://claude.ai/install.sh | bash || warn "claude のインストールに失敗しました"
+        fi
+    fi
+
+    if ! command -v codex &> /dev/null; then
+        info "Installing codex..."
+        if command -v npm &> /dev/null; then
+            npm install -g @openai/codex || warn "codex のインストールに失敗しました"
+        elif command -v brew &> /dev/null; then
+            brew install codex || warn "codex のインストールに失敗しました"
+        else
+            warn "codex には npm か brew が必要です。mise で node を入れてから再実行してください"
+        fi
+    fi
 
     # delta (git pager): 入っている場合のみ git 設定を有効化
     if ! command -v delta &> /dev/null && command -v brew &> /dev/null; then

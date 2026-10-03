@@ -10,6 +10,8 @@ My personal dotfiles managed with Git.
 - `.zshrc.local.example` - Local settings template (mise, pnpm)
 - `Brewfile` - Homebrew package manifest
 - `config/sheldon/plugins.toml` - Zsh plugin manager configuration
+- `config/claude/` - Claude Code 設定 (`settings.json`, `CLAUDE.md`) → `~/.claude/`
+- `config/codex/` - Codex CLI 設定 (`config.toml`, `AGENTS.md`) → `~/.codex/`。`AGENTS.md` は `CLAUDE.md` と共通
 
 ## Supported OS
 
@@ -21,6 +23,7 @@ macOS / Linux (Debian・Ubuntu・Codespaces など) / WSL に対応していま�
 - `delta` は Homebrew がある場合のみ導入し、入っている環境だけ git の pager 設定 (`config/git/delta.gitconfig`) を有効化します
 - VSCode 設定のリンク先は OS ごとに切り替わります（macOS: `~/Library/Application Support/Code/User`、Linux: `~/.config/Code/User`）
 - `macos.sh` は macOS 専用です
+- Claude Code と Codex は npm を優先して導入します（npm が無ければ Claude Code は公式インストーラ、Codex は brew）。認証情報やセッションは管理せず、設定ファイルのみリンクします（初回は `claude` / `codex` を起動してログインしてください）
 
 ## Installation
 
