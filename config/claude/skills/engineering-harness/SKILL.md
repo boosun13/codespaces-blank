@@ -1,12 +1,21 @@
 ---
-name: harness
-description: 複数のサブエージェント（Claude opus/sonnet、codex astra/sol/terra/luna、agy gemini）でチームを編成し、役割を割り当てて指示するオーケストレーション手順。大きなタスクを分担・並列化・クロスレビューしたいときに使う。
+name: engineering-harness
+description: ソフトウェアエンジニアリング（設計・実装・バグ調査・リファクタ・テスト・コードレビュー・技術調査）のタスクを、複数のサブエージェント（Claude opus/sonnet、codex astra/sol/terra/luna、agy gemini）のチームで分担して進めるエンジニアリングハーネス。複数ファイルにまたがる／並列化できる／独立レビューが要る／難しいバグ／大量の資料調査など、チームで当たるべきと判断したときに自動で使う。単純な一箇所の修正、質問への回答、エンジニアリング以外の作業には使わない。
 ---
-# オーケストレーター指示書
+# エンジニアリングハーネス（オーケストレーター指示書）
 
 あなた（メインセッション）は**指揮者**であり、原則として自分では実装しない。
-手札は `~/.claude/skills/harness/roster.md`、実行可能なエージェントは `~/.claude/agents/`、蓄積された教訓は `~/.claude/skills/harness/lessons.md`。
+手札は `~/.claude/skills/engineering-harness/roster.md`、実行可能なエージェントは `~/.claude/agents/`、蓄積された教訓は `~/.claude/skills/engineering-harness/lessons.md`。
 **最初に `lessons.md` を読み、該当する教訓を計画と各エージェントへの指示に反映する。**
+
+## 使うかどうかの判断
+エンジニアリング作業のうち、次のいずれかに当たるとき**チームを編成する**。
+- 複数ファイル・複数モジュールにまたがる、または独立して並列化できる部分がある
+- 作成者とは別系統の独立レビュー・検証が価値を持つ（設計判断、セキュリティ、本番影響）
+- 原因不明・難度の高いバグ、アルゴリズム、性能問題
+- 大量のコード・資料の横断調査が要る
+
+次は**チームを使わず自分で直接やる**: 一箇所の軽微な修正、単発の質問、エンジニアリング以外の作業。迷うときは「チームで進めますか？」と利用者に一言確認する。
 
 ## 進め方は対話が基本
 自律で走り切らず、次のゲートで利用者に確認してから進む（質問は AskUserQuestion か簡潔な文面で、推奨案を添える）。
@@ -35,8 +44,8 @@ description: 複数のサブエージェント（Claude opus/sonnet、codex astr
 3. 項目を追加する（形式は `lessons.md` 冒頭）。担当エージェント固有の話ならその `~/.claude/agents/<name>.md` の本文も直接更新する。手順や選定ルール自体の改善なら本 `SKILL.md` / `roster.md` を更新する。
 4. 一言で利用者に伝える（「教訓に追加: ○○」）。
 5. 各ランの終わりに、利用者へ「今回の進め方で直してほしい点は？」と聞き、出れば同じ手順で反映する。
-6. **dotfiles を一緒に更新する**: 正本は dotfiles リポジトリ（`readlink -f ~/.claude/skills/harness` で実体を確認）。`~/.claude` 側がリンクでない環境では、実体のある dotfiles 側を編集する。構成が変わったら `README.md` と `install.sh`（リンク作成・アンインストール）も同じ変更で更新する。
-7. **ローカルコミットまで行う**: ハーネス関連のパス（`config/claude/agents/` `config/claude/skills/harness/` `README.md` `install.sh`）だけを `git add` し、Conventional Commits 形式・日本語・Co-Authored-By なしでコミットする。無関係な未コミット変更は含めない。**push は利用者の指示があるまで行わない。**
+6. **dotfiles を一緒に更新する**: 正本は dotfiles リポジトリ（`readlink -f ~/.claude/skills/engineering-harness` で実体を確認）。`~/.claude` 側がリンクでない環境では、実体のある dotfiles 側を編集する。構成が変わったら `README.md` と `install.sh`（リンク作成・アンインストール）も同じ変更で更新する。
+7. **ローカルコミットまで行う**: ハーネス関連のパス（`config/claude/agents/` `config/claude/skills/engineering-harness/` `README.md` `install.sh`）だけを `git add` し、Conventional Commits 形式・日本語・Co-Authored-By なしでコミットする。無関係な未コミット変更は含めない。**push は利用者の指示があるまで行わない。**
 
 ## 早見表
 | 仕事 | 担当 |

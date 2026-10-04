@@ -192,7 +192,7 @@ uninstall() {
     for f in "$DOTFILES_DIR"/config/claude/agents/*.md; do
         unlink_file "$HOME/.claude/agents/$(basename "$f")"
     done
-    unlink_file "$HOME/.claude/skills/harness"
+    unlink_file "$HOME/.claude/skills/engineering-harness"
     unlink_file "$HOME/.codex/config.toml"
     unlink_file "$HOME/.codex/AGENTS.md"
     unlink_file "$(vscode_user_dir)/settings.json"
@@ -268,16 +268,21 @@ main() {
         mkdir -p "$HOME/.claude"
         link_file "$DOTFILES_DIR/config/claude/settings.json" "$HOME/.claude/settings.json"
         link_file "$DOTFILES_DIR/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-        # エージェントチーム用ハーネス (サブエージェント定義 + /harness スキル)
+        # エージェントチーム用ハーネス (サブエージェント定義 + /engineering-harness スキル)
         if [[ -d "$DOTFILES_DIR/config/claude/agents" ]]; then
             mkdir -p "$HOME/.claude/agents"
             for f in "$DOTFILES_DIR"/config/claude/agents/*.md; do
                 link_file "$f" "$HOME/.claude/agents/$(basename "$f")"
             done
         fi
-        if [[ -d "$DOTFILES_DIR/config/claude/skills/harness" ]]; then
+        if [[ -d "$DOTFILES_DIR/config/claude/skills/engineering-harness" ]]; then
             mkdir -p "$HOME/.claude/skills"
-            link_file "$DOTFILES_DIR/config/claude/skills/harness" "$HOME/.claude/skills/harness"
+            # 旧名 (harness) のリンクが dotfiles を指していれば削除
+            old="$HOME/.claude/skills/harness"
+            if [[ -L "$old" && "$(readlink "$old")" == "$DOTFILES_DIR"* ]]; then
+                rm "$old" && info "Removed old symlink: $old"
+            fi
+            link_file "$DOTFILES_DIR/config/claude/skills/engineering-harness" "$HOME/.claude/skills/engineering-harness"
         fi
     fi
 
@@ -352,7 +357,7 @@ main() {
 
     # agy (Antigravity CLI): 公式インストーラが無いため未導入なら案内のみ
     if ! command -v agy &> /dev/null; then
-        warn "agy が見つかりません。/harness の gemini 系エージェントを使うには agy を導入してください"
+        warn "agy が見つかりません。/engineering-harness の gemini 系エージェントを使うには agy を導入してください"
     fi
 
     # delta (git pager): 入っている場合のみ git 設定を有効化
