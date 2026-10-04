@@ -48,7 +48,32 @@ chmod +x install.sh
 通常実行時は既存ファイルがある場合に確認プロンプトが表示されます。
 `-f` オプションで確認をスキップして即座に上書きできます（既存ファイルはバックアップされます）。
 
+### clone せずにインストールする
+
+`git clone` を使わず、tarball を展開して実行できます（`.git` は残りません）。
+
+```bash
+mkdir -p ~/dotfiles
+curl -fsSL https://github.com/boosun13/dotfiles/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=1 -C ~/dotfiles
+cd ~/dotfiles && ./install.sh
+```
+
+- `install.sh` は `~/dotfiles` 配下へのシンボリックリンクを張るため、展開先は **`/tmp` ではなく永続的なディレクトリ**にしてください（消すとリンク切れになります）
+- 更新するときは同じコマンドで上書き展開し、`./install.sh` を再実行します
+- private リポジトリの場合は `curl` に `-H "Authorization: Bearer $GITHUB_TOKEN"` を付け、URL を `https://api.github.com/repos/boosun13/dotfiles/tarball/main` にします
+- 実行前に `install.sh` の内容を確認してください
+
 ## Codespaces
+
+Codespaces では dotfiles 機能で自動インストールします（上記の tarball 手順は不要です）。
+
+1. GitHub の Settings → Codespaces → Dotfiles で `boosun13/dotfiles` を選び、「Automatically install dotfiles」を有効にします
+2. 新規 Codespace の作成時に自動で clone され、リポジトリ直下の `install.sh` が実行されます（配置先は `/workspaces/.codespaces/.persistedshare/dotfiles`）
+3. 反映されるのは**新しく作る Codespace** からです。既存の Codespace には `./install.sh` を手動で実行してください
+4. 失敗した場合のログは `/workspaces/.codespaces/.persistedshare/creation.log` にあります
+
+`zsh` が必要です（標準イメージには含まれます。独自の devcontainer を使う場合は確認してください）。
 
 `.devcontainer/devcontainer.json` で、同一アカウント(`boosun13/*`)の全リポジトリへ `contents: write` を付与しています。Codespace 作成時に権限の承認が求められ、変更は**新しく作る Codespace** から有効になります。
 
