@@ -189,6 +189,10 @@ uninstall() {
     unlink_file "$HOME/.gitconfig.delta"
     unlink_file "$HOME/.claude/settings.json"
     unlink_file "$HOME/.claude/CLAUDE.md"
+    for f in "$DOTFILES_DIR"/config/claude/agents/*.md; do
+        unlink_file "$HOME/.claude/agents/$(basename "$f")"
+    done
+    unlink_file "$HOME/.claude/skills/harness"
     unlink_file "$HOME/.codex/config.toml"
     unlink_file "$HOME/.codex/AGENTS.md"
     unlink_file "$(vscode_user_dir)/settings.json"
@@ -264,6 +268,17 @@ main() {
         mkdir -p "$HOME/.claude"
         link_file "$DOTFILES_DIR/config/claude/settings.json" "$HOME/.claude/settings.json"
         link_file "$DOTFILES_DIR/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+        # エージェントチーム用ハーネス (サブエージェント定義 + /harness スキル)
+        if [[ -d "$DOTFILES_DIR/config/claude/agents" ]]; then
+            mkdir -p "$HOME/.claude/agents"
+            for f in "$DOTFILES_DIR"/config/claude/agents/*.md; do
+                link_file "$f" "$HOME/.claude/agents/$(basename "$f")"
+            done
+        fi
+        if [[ -d "$DOTFILES_DIR/config/claude/skills/harness" ]]; then
+            mkdir -p "$HOME/.claude/skills"
+            link_file "$DOTFILES_DIR/config/claude/skills/harness" "$HOME/.claude/skills/harness"
+        fi
     fi
 
     # Codex CLI
@@ -333,6 +348,11 @@ main() {
         else
             warn "codex には npm か brew が必要です。mise で node を入れてから再実行してください"
         fi
+    fi
+
+    # agy (Antigravity CLI): 公式インストーラが無いため未導入なら案内のみ
+    if ! command -v agy &> /dev/null; then
+        warn "agy が見つかりません。/harness の gemini 系エージェントを使うには agy を導入してください"
     fi
 
     # delta (git pager): 入っている場合のみ git 設定を有効化

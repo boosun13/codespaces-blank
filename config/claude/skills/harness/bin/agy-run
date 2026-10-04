@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# 使い方: echo "指示" | bin/agy-run <pro|flash> [low|medium|high]
+set -euo pipefail
+case "${1:?tier required: pro|flash}" in
+  pro)   M=gemini-3.1-pro-${2:-high} ;;
+  flash) M=gemini-3.8-flash-${2:-medium} ;;
+  *) echo "unknown tier: $1" >&2; exit 2 ;;
+esac
+agy --model "$M" --print "$(cat)"

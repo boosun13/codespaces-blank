@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# 使い方: echo "指示" | bin/codex-run <astra|sol|terra|luna> [effort=medium] [sandbox=read-only|workspace-write]
+set -euo pipefail
+case "${1:?tier required: astra|sol|terra|luna}" in
+  astra) M=gpt-6-astra ;;
+  sol)   M=gpt-6.1-sol ;;
+  terra) M=gpt-5.6-terra ;;
+  luna)  M=gpt-6-luna ;;
+  *) echo "unknown tier: $1" >&2; exit 2 ;;
+esac
+EFFORT="${2:-medium}"; SANDBOX="${3:-read-only}"
+OUT="$(mktemp)"
+codex exec --skip-git-repo-check -m "$M" -c "model_reasoning_effort=\"$EFFORT\"" \
+  -s "$SANDBOX" -o "$OUT" - >/dev/null 2>"$OUT.err" || { cat "$OUT.err" >&2; exit 1; }
+cat "$OUT"; rm -f "$OUT" "$OUT.err"

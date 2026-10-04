@@ -11,6 +11,8 @@ My personal dotfiles managed with Git.
 - `Brewfile` - Homebrew package manifest
 - `config/sheldon/plugins.toml` - Zsh plugin manager configuration
 - `config/claude/` - Claude Code 設定 (`settings.json`, `CLAUDE.md`) → `~/.claude/`
+- `config/claude/agents/` - エージェントチーム用サブエージェント10体 → `~/.claude/agents/`
+- `config/claude/skills/harness/` - `/harness` スキル（教訓 `lessons.md` を含む。オーケストレーター指示・手札名鑑・`codex-run` / `agy-run` ラッパー）→ `~/.claude/skills/harness`。codex / agy が必要
 - `config/codex/` - Codex CLI 設定 (`config.toml`, `AGENTS.md`) → `~/.codex/`。`AGENTS.md` は `CLAUDE.md` と共通
 
 ## Supported OS
