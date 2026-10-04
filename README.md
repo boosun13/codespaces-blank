@@ -48,6 +48,10 @@ chmod +x install.sh
 通常実行時は既存ファイルがある場合に確認プロンプトが表示されます。
 `-f` オプションで確認をスキップして即座に上書きできます（既存ファイルはバックアップされます）。
 
+## Codespaces
+
+`.devcontainer/devcontainer.json` で、同一アカウント(`boosun13/*`)の全リポジトリへ `contents: write` を付与しています。Codespace 作成時に権限の承認が求められ、変更は**新しく作る Codespace** から有効になります。
+
 ## Manual Setup
 
 After installation, edit `.gitconfig` to set your Git user:

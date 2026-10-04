@@ -1,0 +1,14 @@
+{
+  "name": "codespaces-blank",
+  "customizations": {
+    "codespaces": {
+      "repositories": {
+        "boosun13/*": {
+          "permissions": {
+            "contents": "write"
+          }
+        }
+      }
+    }
+  }
+}
